@@ -1,9 +1,9 @@
-distance_matrix = [
-    [0, 10, 15, 20, 25],   # from Depot
-    [10, 0, 35, 25, 30],   # from A
-    [15, 35, 0, 30, 20],   # from B
-    [20, 25, 30, 0, 90],   # from C
-    [25, 30, 5, 15, 0],   # from D
+durations = [
+    [0, 345.3, 184, 366.8, 171.1],
+    [310.3, 0, 432, 239.7, 181],
+    [103.6, 307.9, 0, 329.4, 133.7],
+    [365.7, 269.6, 487.4, 0, 365],
+    [207.5, 174.2, 329.2, 302.9, 0]
 ]
 
 node_names = ["Depot", "A", "B", "C", "D"]
@@ -12,8 +12,9 @@ from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 
 
-def solve_tsp(distance_matrix, node_names):
-    num_nodes = len(distance_matrix)
+
+def solve_tsp(durations, node_names):
+    num_nodes = len(durations)
     depot_index = 0
 
     # Manager translates between OR-Tools' internal node numbering
@@ -26,7 +27,7 @@ def solve_tsp(distance_matrix, node_names):
     def distance_callback(from_index, to_index):
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
-        return distance_matrix[from_node][to_node]
+        return int(round(durations[from_node][to_node]))
 
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
@@ -64,4 +65,4 @@ def print_solution(manager, routing, solution, node_names):
 
 
 if __name__ == "__main__":
-    solve_tsp(distance_matrix, node_names)
+    solve_tsp(durations, node_names)
