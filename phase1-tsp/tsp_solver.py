@@ -1,15 +1,22 @@
-durations = [
-    [0, 345.3, 184, 366.8, 171.1],
-    [310.3, 0, 432, 239.7, 181],
-    [103.6, 307.9, 0, 329.4, 133.7],
-    [365.7, 269.6, 487.4, 0, 365],
-    [207.5, 174.2, 329.2, 302.9, 0]
-]
+from ortools.constraint_solver import routing_enums_pb2
+from ortools.constraint_solver import pywrapcp
+from osrm_client import get_osrm_duration_matrix, OSRMError
 
 node_names = ["Depot", "A", "B", "C", "D"]
 
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
+coordinates = [
+    (28.7158, 77.1091),  # Depot
+    (28.7237, 77.1280),  # A
+    (28.7208, 77.1072),  # B
+    (28.7115, 77.1391),  # C
+    (28.7186, 77.1195),  # D
+]
+
+try:
+    distance_matrix = get_osrm_duration_matrix(coordinates)
+except (ValueError, OSRMError) as e:
+    print(f"Failed to build distance matrix: {e}")
+    exit(1)
 
 
 
@@ -60,9 +67,9 @@ def print_solution(manager, routing, solution, node_names):
 
     route.append(node_names[manager.IndexToNode(index)])  # back to depot
 
-    print("Route:", " → ".join(route))
+    print("Route:", " -> ".join(route))
     print("Total distance:", total_distance)
 
 
 if __name__ == "__main__":
-    solve_tsp(durations, node_names)
+    solve_tsp(distance_matrix, node_names)
