@@ -17,13 +17,15 @@ class OptimizeRequest(BaseModel):
     depot: Stop
     stops: list[Stop]
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 @app.post("/optimize")
 def optimize(request: OptimizeRequest):
     all_points = [request.depot] + request.stops
     coordinates = [(p.lat, p.lng) for p in all_points]
     node_names = [p.id for p in all_points]
-
     try:
         durations = get_osrm_duration_matrix(coordinates)
     except ValueError as e:
