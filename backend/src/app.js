@@ -1,10 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import axios from "axios";
 
 const app = express();
 app.use(express.json());
 
-const PYTHON_SERVICE_URL = "http://127.0.0.1:8000";
+const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL;
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
