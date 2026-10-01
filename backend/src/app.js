@@ -1,0 +1,31 @@
+import express from "express";
+import axios from "axios";
+
+const app = express();
+app.use(express.json());
+
+const PYTHON_SERVICE_URL = "http://127.0.0.1:8000";
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+app.post("/api/routes/optimize", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `${PYTHON_SERVICE_URL}/optimize`,
+      req.body,
+    );
+    res.status(200).json(response.data);
+  } catch (error) {
+    if (error.response) {
+      // Python service responded, but with an error status (400, 422, 502...)
+      res.status(error.response.status).json(error.response.data);
+    } else {
+      // Python service unreachable entirely (not running, network issue)
+      res.status(502).json({ detail: "Optimization service unavailable" });
+    }
+  }
+});
+
+export default app;
