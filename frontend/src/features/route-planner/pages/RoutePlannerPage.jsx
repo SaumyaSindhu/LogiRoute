@@ -1,10 +1,4 @@
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMapEvents,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from "react-leaflet";
 import { useState } from "react";
 import "leaflet/dist/leaflet.css";
 
@@ -22,6 +16,7 @@ export default function RoutePlannerPage() {
   const [stops, setStops] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [optimizedRoute, setOptimizedRoute] = useState(null);
 
   function handleMapClick(coord) {
     const newStop = {
@@ -32,6 +27,13 @@ export default function RoutePlannerPage() {
     setStops([...stops, newStop]);
   }
 
+  // build a lookup table of id -> {lat, lng}, so we can
+  // turn the backend's ordered ID list into actual coordinates
+  function getPointById(id) {
+    if (id === DEPOT.id) return DEPOT;
+    return stops.find((s) => s.id === id);
+  }
+
   async function handleOptimize() {
     if (stops.length < 1) {
       setError("Add at least 1 delivery stop before optimizing.");
@@ -39,6 +41,7 @@ export default function RoutePlannerPage() {
     }
     setIsLoading(true);
     setError(null);
+    setOptimizedRoute(null); // clear any previous result while a new one loads
 
     try {
       const response = await fetch(
@@ -56,13 +59,21 @@ export default function RoutePlannerPage() {
         throw new Error(data.detail || "Optimization failed");
       }
 
-      console.log("Optimized result:", data);
+      setOptimizedRoute(data);
     } catch (err) {
       setError(err.message);
     } finally {
       setIsLoading(false);
     }
   }
+
+  // derive the polyline's coordinates from the route's ID order
+  const routeCoordinates = optimizedRoute
+    ? optimizedRoute.route
+        .map((id) => getPointById(id))
+        .filter(Boolean) // safety: drop any id that somehow didn't match
+        .map((point) => [point.lat, point.lng])
+    : [];
 
   return (
     <div style={{ position: "relative", height: "100vh", width: "100%" }}>
@@ -112,6 +123,11 @@ export default function RoutePlannerPage() {
             <Popup>{stop.id}</Popup>
           </Marker>
         ))}
+
+        {/* only render the polyline once we actually have a route */}
+        {routeCoordinates.length > 0 && (
+          <Polyline positions={routeCoordinates} color="blue" />
+        )}
 
         <ClickHandler onMapClick={handleMapClick} />
       </MapContainer>
