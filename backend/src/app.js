@@ -1,9 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
+import cors from "cors";
 import express from "express";
 import axios from "axios";
 
+
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL;
