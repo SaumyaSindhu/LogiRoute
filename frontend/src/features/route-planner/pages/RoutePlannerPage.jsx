@@ -16,7 +16,12 @@ export default function RoutePlannerPage() {
     const [stops, setStops] = useState([]);
 
     function handleMapClick(coord) {
-        setStops([...stops, coord]);
+        const newStop = {
+          id: `stop-${Date.now()}`,
+          lat: coord[0],
+          lng: coord[1],
+        };
+        setStops([...stops, newStop]);
     }
   return (
     <MapContainer
@@ -32,9 +37,9 @@ export default function RoutePlannerPage() {
         <Popup>Depot</Popup>
       </Marker>
 
-      {stops.map((stop, index) => (
-        <Marker key={index} position={stop}>
-            <Popup>Stop {index + 1}</Popup>
+      {stops.map((stop) => (
+        <Marker key={stop.id} position={[stop.lat, stop.lng]}>
+          <Popup>{stop.id}</Popup>
         </Marker>
       ))}
 
