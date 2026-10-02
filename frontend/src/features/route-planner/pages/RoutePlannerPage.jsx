@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 const ROHINI_CENTER = [28.7158, 77.1091]; // Depot coordinate from earlier phases
@@ -14,6 +14,9 @@ export default function RoutePlannerPage() {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
+      <Marker position={ROHINI_CENTER}>
+        <Popup>Depot</Popup>
+      </Marker>
     </MapContainer>
   );
 }
