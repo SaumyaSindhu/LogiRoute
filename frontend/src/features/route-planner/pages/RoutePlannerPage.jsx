@@ -1,8 +1,31 @@
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+  useMapEvents,
+} from "react-leaflet";
 import { useState } from "react";
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
-const DEPOT = { id: "depot", lat: 28.7158, lng: 77.1091 }; // Depot
+const DEPOT = { id: "depot", lat: 28.7158, lng: 77.1091 };
+
+function createNumberedIcon(label) {
+  return L.divIcon({
+    html: `<div class="stop-number-marker">${label}</div>`,
+    className: "",
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+  });
+}
+
+function getStopOrderNumber(id, optimizedRoute) {
+  if (!optimizedRoute) return null;
+  const index = optimizedRoute.route.indexOf(id);
+  return index === -1 ? null : index;
+}
 
 function ClickHandler({ onMapClick }) {
   useMapEvents({
@@ -10,8 +33,9 @@ function ClickHandler({ onMapClick }) {
       onMapClick([e.latlng.lat, e.latlng.lng]);
     },
   });
-  return null; // this component renders nothing visible — it only listens for events
+  return null;
 }
+
 export default function RoutePlannerPage() {
   const [stops, setStops] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,8 +51,6 @@ export default function RoutePlannerPage() {
     setStops([...stops, newStop]);
   }
 
-  // build a lookup table of id -> {lat, lng}, so we can
-  // turn the backend's ordered ID list into actual coordinates
   function getPointById(id) {
     if (id === DEPOT.id) return DEPOT;
     return stops.find((s) => s.id === id);
@@ -41,7 +63,7 @@ export default function RoutePlannerPage() {
     }
     setIsLoading(true);
     setError(null);
-    setOptimizedRoute(null); // clear any previous result while a new one loads
+    setOptimizedRoute(null);
 
     try {
       const response = await fetch(
@@ -67,11 +89,10 @@ export default function RoutePlannerPage() {
     }
   }
 
-  // derive the polyline's coordinates from the route's ID order
   const routeCoordinates = optimizedRoute
     ? optimizedRoute.route
         .map((id) => getPointById(id))
-        .filter(Boolean) // safety: drop any id that somehow didn't match
+        .filter(Boolean)
         .map((point) => [point.lat, point.lng])
     : [];
 
@@ -118,13 +139,21 @@ export default function RoutePlannerPage() {
           <Popup>Depot</Popup>
         </Marker>
 
-        {stops.map((stop) => (
-          <Marker key={stop.id} position={[stop.lat, stop.lng]}>
-            <Popup>{stop.id}</Popup>
-          </Marker>
-        ))}
+        {stops.map((stop) => {
+          const orderNumber = getStopOrderNumber(stop.id, optimizedRoute);
+          return (
+            <Marker
+              key={stop.id}
+              position={[stop.lat, stop.lng]}
+              icon={createNumberedIcon(
+                orderNumber !== null ? orderNumber : "•",
+              )}
+            >
+              <Popup>{stop.id}</Popup>
+            </Marker>
+          );
+        })}
 
-        {/* only render the polyline once we actually have a route */}
         {routeCoordinates.length > 0 && (
           <Polyline positions={routeCoordinates} color="blue" />
         )}
