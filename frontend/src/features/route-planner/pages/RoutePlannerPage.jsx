@@ -112,6 +112,23 @@ export default function RoutePlannerPage() {
         {isLoading ? "Optimizing..." : "Optimize Route"}
       </button>
 
+      {optimizedRoute && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 20,
+            left: 20,
+            zIndex: 1000,
+            background: "white",
+            padding: "12px 16px",
+            borderRadius: 4,
+          }}
+        >
+          <strong>Total travel time:</strong>{" "}
+          {Math.round(optimizedRoute.total_duration_seconds / 60)} min
+        </div>
+      )}
+      
       {error && (
         <div
           style={{
