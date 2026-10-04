@@ -1,0 +1,28 @@
+// Color
+$color-ink: #1a1d23;
+$color-ink-light: #4a4f5a;
+$color-border: #e2e4e8;
+$color-surface: #ffffff;
+$color-bg: #f5f6f8;
+
+$color-accent: #d97706;       // amber — primary actions
+$color-accent-hover: #b45309;
+$color-data: #2563eb;          // blue — reserved for map/route elements only
+$color-error: #dc2626;
+
+// Spacing (consistent scale, not arbitrary pixel values)
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 16px;
+$space-lg: 24px;
+$space-xl: 32px;
+
+// Typography
+$font-base: "Public Sans", -apple-system, sans-serif;
+$font-size-sm: 13px;
+$font-size-base: 15px;
+$font-size-lg: 20px;
+
+// Shape
+$radius: 6px;
+$border-width: 1px;

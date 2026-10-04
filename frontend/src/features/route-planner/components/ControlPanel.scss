@@ -1,0 +1,80 @@
+@import "../../../shared/styles/tokens";
+
+.control-panel {
+  width: 320px;
+  height: 100%;
+  background: $color-surface;
+  border-left: $border-width solid $color-border;
+  padding: $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+
+  &__header {
+    h1 {
+      font-size: $font-size-lg;
+      font-weight: 700;
+    }
+    p {
+      font-size: $font-size-sm;
+      color: $color-ink-light;
+    }
+  }
+
+  &__status {
+    font-size: $font-size-sm;
+    color: $color-ink-light;
+  }
+
+  &__optimize-btn {
+    background: $color-accent;
+    color: white;
+    border: none;
+    border-radius: $radius;
+    padding: 12px $space-md;
+    font-family: $font-base;
+    font-size: $font-size-base;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: $color-accent-hover;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__error {
+    font-size: $font-size-sm;
+    color: $color-error;
+  }
+
+  &__result {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xs;
+    padding: $space-md;
+    border: $border-width solid $color-border;
+    border-radius: $radius;
+  }
+
+  &__result-label {
+    font-size: $font-size-sm;
+    color: $color-ink-light;
+  }
+
+  &__result-value {
+    font-size: $font-size-lg;
+    font-weight: 700;
+  }
+
+  &__hint {
+    margin-top: auto;
+    font-size: $font-size-sm;
+    color: $color-ink-light;
+  }
+}

@@ -9,6 +9,8 @@ import {
 import { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import ControlPanel from "../components/ControlPanel";
+import "./RoutePlannerPage.scss";
 
 const DEPOT = { id: "depot", lat: 28.7158, lng: 77.1091 };
 
@@ -97,86 +99,51 @@ export default function RoutePlannerPage() {
     : [];
 
   return (
-    <div style={{ position: "relative", height: "100vh", width: "100%" }}>
-      <button
-        onClick={handleOptimize}
-        disabled={isLoading}
-        style={{
-          position: "absolute",
-          top: 10,
-          right: 10,
-          zIndex: 1000,
-          padding: "10px 16px",
-        }}
-      >
-        {isLoading ? "Optimizing..." : "Optimize Route"}
-      </button>
-
-      {optimizedRoute && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 20,
-            left: 20,
-            zIndex: 1000,
-            background: "white",
-            padding: "12px 16px",
-            borderRadius: 4,
-          }}
+    <div className="route-planner">
+      <div className="route-planner__map">
+        <MapContainer
+          center={[DEPOT.lat, DEPOT.lng]}
+          zoom={14}
+          style={{ height: "100%", width: "100%" }}
         >
-          <strong>Total travel time:</strong>{" "}
-          {Math.round(optimizedRoute.total_duration_seconds / 60)} min
-        </div>
-      )}
-      
-      {error && (
-        <div
-          style={{
-            position: "absolute",
-            top: 50,
-            right: 10,
-            zIndex: 1000,
-            color: "red",
-          }}
-        >
-          {error}
-        </div>
-      )}
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <Marker position={[DEPOT.lat, DEPOT.lng]}>
+            <Popup>Depot</Popup>
+          </Marker>
 
-      <MapContainer
-        center={[DEPOT.lat, DEPOT.lng]}
-        zoom={14}
-        style={{ height: "100%", width: "100%" }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <Marker position={[DEPOT.lat, DEPOT.lng]}>
-          <Popup>Depot</Popup>
-        </Marker>
+          {stops.map((stop) => {
+            const orderNumber = getStopOrderNumber(stop.id, optimizedRoute);
+            return (
+              <Marker
+                key={stop.id}
+                position={[stop.lat, stop.lng]}
+                icon={createNumberedIcon(
+                  orderNumber !== null ? orderNumber : "•",
+                )}
+              >
+                <Popup>{stop.id}</Popup>
+              </Marker>
+            );
+          })}
 
-        {stops.map((stop) => {
-          const orderNumber = getStopOrderNumber(stop.id, optimizedRoute);
-          return (
-            <Marker
-              key={stop.id}
-              position={[stop.lat, stop.lng]}
-              icon={createNumberedIcon(
-                orderNumber !== null ? orderNumber : "•",
-              )}
-            >
-              <Popup>{stop.id}</Popup>
-            </Marker>
-          );
-        })}
+          {routeCoordinates.length > 0 && (
+            <Polyline positions={routeCoordinates} color="#2563eb" weight={4} />
+          )}
 
-        {routeCoordinates.length > 0 && (
-          <Polyline positions={routeCoordinates} color="blue" />
-        )}
+          <ClickHandler onMapClick={handleMapClick} />
+        </MapContainer>
+      </div>
 
-        <ClickHandler onMapClick={handleMapClick} />
-      </MapContainer>
+      <ControlPanel
+        stopCount={stops.length}
+        isLoading={isLoading}
+        error={error}
+        optimizedRoute={optimizedRoute}
+        onOptimize={handleOptimize}
+      />
     </div>
   );
 }
